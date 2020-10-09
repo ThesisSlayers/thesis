@@ -2,11 +2,17 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"Video": "VideoBlock.ipynb",
-         "RisizeTime": "VideoBlock.ipynb",
-         "encodes": "VideoBlock.ipynb"}
+index = {"AdaptiveConcatPool3d": "02_inflator.ipynb",
+         "get_hps": "02_inflator.ipynb",
+         "Video": "03_video_block.ipynb",
+         "RisizeTime": "03_video_block.ipynb",
+         "encodes": "03_video_block.ipynb",
+         "uniformize_dataset": "03_video_block.ipynb",
+         "get_vid_files": "03_video_block.ipynb",
+         "UniformLabelsCallback": "03_video_block.ipynb"}
 
-modules = ["VideoBlock.py"]
+modules = ["inflator.py",
+           "video_block.py"]
 
 doc_url = "https://ThesisSlayer.github.io/modules_th/"
 
