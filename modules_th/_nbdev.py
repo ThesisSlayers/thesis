@@ -4,12 +4,15 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"AdaptiveConcatPool3d": "02_inflator.ipynb",
          "get_hps": "02_inflator.ipynb",
+         "inflate": "02_inflator.ipynb",
+         "show_frames": "03_video_block.ipynb",
          "Video": "03_video_block.ipynb",
-         "RisizeTime": "03_video_block.ipynb",
+         "ResizeTime": "03_video_block.ipynb",
          "encodes": "03_video_block.ipynb",
          "uniformize_dataset": "03_video_block.ipynb",
          "get_vid_files": "03_video_block.ipynb",
-         "UniformLabelsCallback": "03_video_block.ipynb"}
+         "UniformLabelsCallback": "03_video_block.ipynb",
+         "snippets_from_video": "03_video_block.ipynb"}
 
 modules = ["inflator.py",
            "video_block.py"]
