@@ -36,18 +36,19 @@ class Video(L):
 
 # Cell
 class ResizeTime(Transform):
-    split_idx=None # 0- train 1- validation
-    def __init__(self, skip=2, l=50, drop_last=True):
+    split_idx = None # 0- train 1- validation
+    def __init__(self, skip=2, l=50, drop_last=True,**kwargs):
         self.skip = skip
         self.l = l
         self.drop_last = drop_last
+        #self.split_idx=split_idx
+        super().__init__(**kwargs)
 
-    def encodes(self, vid:(list,str,Video), sep='\n'):
+    def encodes(self, vid:Video):
         '''create a list of frame-images (snippet) out a single video path'''
         l, skip = self.l, self.skip
-        vid = vid.split(sep) if isinstance(vid, str) else vid # list of video
         snippet_list = snippets_from_video(vid,s=skip,l=l)
-        idx = len(snippet_list)//2 if split_idx else random.randint(0,len(snippet_list)-1) # ** if validation always takes middle snip
+        idx = len(snippet_list)//2 if self.split_idx else random.randint(0,len(snippet_list)-1) # ** if validation always takes middle snip
         return snippet_list[idx]
 
 # Cell
