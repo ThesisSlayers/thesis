@@ -30,7 +30,7 @@ def show_frames(video,start=0, end=5):
 class Video(L):
     ''' the init function takes a list of PILImage s'''
     @classmethod
-    def create(cls, paths:Union[list,str], sep='\n'):
+    def create(cls, paths:(list,str), sep='\n'):
         '''create images from frames path in a video'''
         paths = paths.split(sep) if isinstance(paths, str) else paths
         return cls(map(PILImage.create, paths))
