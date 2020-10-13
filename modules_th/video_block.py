@@ -43,14 +43,13 @@ class ResizeTime(Transform):
         self.skip = skip
         self.l = l
         self.drop_last = drop_last
-        #self.split_idx=split_idx
         super().__init__(**kwargs)
 
-    def encodes(self, vid:Video):
+    def encodes(self, vid:Video, split_idx=split_idx):
         '''create a list of frame-images (snippet) out a single video path'''
         l, skip = self.l, self.skip
         snippet_list = snippets_from_video(vid,s=skip,l=l)
-        idx = len(snippet_list)//2 if self.split_idx else random.randint(0,len(snippet_list)-1) # ** if validation always takes middle snip
+        idx = len(snippet_list)//2 if split_idx else random.randint(0,len(snippet_list)-1) # ** if validation always takes middle snip
         return snippet_list[idx]
 
 # Cell
@@ -103,7 +102,7 @@ def uniformize_dataset(vds, lbls, n=3, shuffle=True):
 
 def get_video_files(path:(Path, str), index_col=0, sep='\n'):
     df = pd.read_csv(path, index_col=index_col)
-    vds = [paths.split(sep) for paths in df['paths']]
+    vds = [L(paths.split(sep)) for paths in df['paths']]
     lbls = list(df['lbl'].copy())
     return uniformize_dataset(vds, lbls)
 
