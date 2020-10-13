@@ -10,12 +10,13 @@ index = {"AdaptiveConcatPool3d": "02_inflator.ipynb",
          "ResizeTime": "03_video_block.ipynb",
          "encodes": "03_video_block.ipynb",
          "uniformize_dataset": "03_video_block.ipynb",
-         "get_vid_files": "03_video_block.ipynb",
+         "get_video_files": "03_video_block.ipynb",
          "UniformLabelsCallback": "03_video_block.ipynb",
          "snippets_from_video": "03_video_block.ipynb"}
 
 modules = ["inflator.py",
-           "video_block.py"]
+           "video_block.py",
+           "data_set.py"]
 
 doc_url = "https://ThesisSlayer.github.io/modules_th/"
 
