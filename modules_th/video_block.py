@@ -50,7 +50,7 @@ class ResizeTime(Transform):
         l, skip = self.l, self.skip
         snippet_list = snippets_from_video(vid,s=skip,l=l)
         idx = len(snippet_list)//2 if split_idx else random.randint(0,len(snippet_list)-1) # ** if validation always takes middle snip
-        return snippet_list[idx]
+        return Video(snippet_list[idx])
 
 # Cell
 @ToTensor
