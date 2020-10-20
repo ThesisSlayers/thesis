@@ -2,19 +2,29 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"AdaptiveConcatPool3d": "02_inflator.ipynb",
+index = {"TripletLoss": "01_triplet_loss.ipynb",
+         "MixedLoss": "01_triplet_loss.ipynb",
+         "TLModel": "01_triplet_loss.ipynb",
+         "my_splitter": "01_triplet_loss.ipynb",
+         "tl_accuracy": "01_triplet_loss.ipynb",
+         "AdaptiveConcatPool3d": "02_inflator.ipynb",
          "get_hps": "02_inflator.ipynb",
          "inflate": "02_inflator.ipynb",
+         "create3Dhead": "02_inflator.ipynb",
+         "create3Dcnn": "02_inflator.ipynb",
          "show_frames": "03_video_block.ipynb",
+         "L.insert": "03_video_block.ipynb",
          "Video": "03_video_block.ipynb",
          "snippets_from_video": "03_video_block.ipynb",
+         "stretch": "03_video_block.ipynb",
          "ResizeTime": "03_video_block.ipynb",
          "encodes": "03_video_block.ipynb",
          "uniformize_dataset": "03_video_block.ipynb",
          "UniformizedShuffle": "03_video_block.ipynb",
          "DF2Paths": "04_datasets.ipynb"}
 
-modules = ["inflator.py",
+modules = ["triplet_loss.py",
+           "inflator.py",
            "video_block.py"]
 
 doc_url = "https://ThesisSlayer.github.io/modules_th/"
