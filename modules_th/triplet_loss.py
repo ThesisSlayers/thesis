@@ -16,25 +16,14 @@ from sklearn.cluster import SpectralClustering
 
 # Cell
 class TripletLoss(Module):
-    def __init__(self, norm='cos', margin=0.1):
+    def __init__(self, p='cos', margin=0.1):
         self.margin = margin
-        self.norm = norm
+        self.p = p
 
     def forward(self, embs, y):
         embs = embs.flatten(1)
+        d = -embs@embs.T if self.p=='cos' else torch.cdist(embs,embs,self.p)
         N = len(embs)
-
-        if self.norm =='cos':
-            # Cosine distance matrix
-            nembs = embs/embs.norm(dim=1)[:,None]
-            d = - nembs @ nembs.T
-        else:
-            # Euclidean distance matrix
-            L = embs.size()[1]
-            norms = embs.square().sum(1)
-            d = norms[:,None] + norms - 2*(embs@embs.T)
-            d /= L
-
         with torch.no_grad():
             # Getting indexes of the Positive and Negative sample of each Anchor
             dp, dn = d.clone(), d.clone()
@@ -46,10 +35,10 @@ class TripletLoss(Module):
         return (self.margin + d[range(N),p] - d[range(N),n]).clamp(0).sum()/N
 
 class MixedLoss(Module):
-    def __init__(self, norm='cos', alpha=1, margin=0.1):
+    def __init__(self, p='cos', alpha=1, margin=0.1):
         self.alpha = alpha
         self.CEL = CrossEntropyLossFlat()
-        self.TL = TripletLoss(norm='cos', margin=margin)
+        self.TL = TripletLoss(p='cos', margin=margin)
 
     def forward(self, out, y):
         CEL = self.CEL(out[0], y)
@@ -62,8 +51,8 @@ class TLModel(Module):
         self.encoder, self.head = encoder, head
 
     def forward(self, x):
-        embs = self.head[0:9](self.encoder(x))
-        scrs = self.head[9:](embs)
+        embs = self.head[0:5](self.encoder(x))
+        scrs = self.head[5:](embs)
         return scrs, embs
 
 def my_splitter(model:TLModel):

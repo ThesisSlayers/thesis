@@ -27,17 +27,21 @@ def show_frames(video,start=0, end=5):
 
 
 # Cell
+
 @patch
 def insert(l:L, i, o):
     l.items.insert(i, o)
-
+#Video class with ID
 class Video(L):
     ''' the init function takes a list of PILImage s'''
+    def __init__(self, items=None, *rest, use_list=False, match=None, ID=None):
+        self.ID=ID
+        L.__init__(self, items=items, *rest, use_list=use_list, match=match)
     @classmethod
     def create(cls, paths:(L,list,str), sep='\n'):
         '''create images from frames path in a video'''
         paths = paths.split(sep) if isinstance(paths, str) else paths
-        return cls(map(PILImage.create, paths))
+        return cls(map(PILImage.create, paths),ID=paths[0])
 
     def __mul__(self, n):
         neg = n < 0
@@ -51,14 +55,14 @@ class Video(L):
     def __rmul__(self, n):
         return self*n
 
-    def __getitem__(self, idx): return self._get(idx) if is_indexer(idx) else Video(self._get(idx), use_list=None)
+    def __getitem__(self, idx): return self._get(idx) if is_indexer(idx) else Video(self._get(idx), use_list=None, ID=self.ID)
 
 
 # Cell
 def snippets_from_video(vid, l=10, s=2):
     '''create list of snippet out a video'''
     vid=vid[::s] # skip frames
-    return [[vid[i] for i in range(k*l, k*l + l)] for k in range(0,len(vid)//l)]
+    return [Video([vid[i] for i in range(k*l, k*l + l)]) for k in range(0,len(vid)//l)]
 
 def stretch(vid, l):
     vid = vid*(l//len(vid))
@@ -82,14 +86,12 @@ class ResizeTime(Transform):
     def encodes(self, vid:Video, split_idx=split_idx):
         '''create a list of frame-images (snippet) out a single video path'''
         l, skip, l_vid = self.l, self.skip, len(vid)
-        if l_vid > l:
-#             snippet_list = snippets_from_video(vid,s=skip,l=l)
-#             idx = len(snippet_list)//2 if split_idx else random.randint(0,len(snippet_list)-1) # ** if validation always takes middle snip
-#             return snippet_list[idx]
-            idx = (len(vid)-l)//2 if split_idx else random.randint(0,len(vid)-l) # ** if validation always takes middle snip
-            return vid[idx:idx+l]
-
+        if l_vid > l*skip:
+            snippet_list = snippets_from_video(vid,s=skip,l=l)
+            idx = len(snippet_list)//2 if split_idx else random.randint(0,len(snippet_list)-1) # ** if validation always takes middle snip
+            return snippet_list[idx]
         else:
+            vid = vid[::skip]
             vid = stretch(vid, l)
         return vid
 
@@ -142,8 +144,9 @@ def uniformize_dataset(lbls, n_el=3, n_lbl=3, shuffle=True):
 # Cell
 class UniformizedShuffle():
     def __init__(self, lbls, n_el=3, n_lbl=3):
-        store_attr(self, 'lbls,n_el,n_lbl')
-
+        self.lbls = lbls
+        self.n_el = n_el
+        self.n_lbl = n_lbl
     def __call__ (self, x=None):
         return uniformize_dataset(lbls=self.lbls, n_el=self.n_el, n_lbl=self.n_lbl)
 
