@@ -8,10 +8,9 @@ index = {"TripletLoss": "01_triplet_loss.ipynb",
          "my_splitter": "01_triplet_loss.ipynb",
          "tl_accuracy": "01_triplet_loss.ipynb",
          "AdaptiveConcatPool3d": "02_inflator.ipynb",
+         "hello": "02_inflator.ipynb",
          "get_hps": "02_inflator.ipynb",
          "inflate": "02_inflator.ipynb",
-         "create3Dhead": "02_inflator.ipynb",
-         "create3Dcnn": "02_inflator.ipynb",
          "show_frames": "03_video_block.ipynb",
          "L.insert": "03_video_block.ipynb",
          "Video": "03_video_block.ipynb",
@@ -21,11 +20,26 @@ index = {"TripletLoss": "01_triplet_loss.ipynb",
          "encodes": "03_video_block.ipynb",
          "uniformize_dataset": "03_video_block.ipynb",
          "UniformizedShuffle": "03_video_block.ipynb",
-         "DF2Paths": "04_datasets.ipynb"}
+         "DF2Paths": "04_datasets.ipynb",
+         "get_vid_path": "05_first_inflated_NN.ipynb",
+         "get_lbls": "05_first_inflated_NN.ipynb",
+         "eugenio": "05_first_inflated_NN.ipynb",
+         "path_data": "05_first_inflated_NN.ipynb",
+         "df": "05_first_inflated_NN.ipynb",
+         "tfms": "05_first_inflated_NN.ipynb",
+         "splits": "05_first_inflated_NN.ipynb",
+         "dsets": "05_first_inflated_NN.ipynb",
+         "shuffle_fn": "05_first_inflated_NN.ipynb",
+         "dls": "05_first_inflated_NN.ipynb",
+         "head": "05_first_inflated_NN.ipynb",
+         "body": "05_first_inflated_NN.ipynb",
+         "model": "05_first_inflated_NN.ipynb",
+         "learn": "05_first_inflated_NN.ipynb"}
 
 modules = ["triplet_loss.py",
            "inflator.py",
-           "video_block.py"]
+           "video_block.py",
+           "first_inflated_NN.py"]
 
 doc_url = "https://ThesisSlayer.github.io/modules_th/"
 
