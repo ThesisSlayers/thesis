@@ -1,5 +1,0 @@
-█epoch     train_loss  valid_loss  tl_accuracy  time    
-██0         2.735829    9.159225    0.023538     13:51:29  
-█epoch     train_loss  valid_loss  tl_accuracy  time    
-██0         2.797051    8.309492    0.023377     12:53:16  
-██

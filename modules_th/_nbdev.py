@@ -9,6 +9,7 @@ index = {"TripletLoss": "01_triplet_loss.ipynb",
          "tl_accuracy": "01_triplet_loss.ipynb",
          "AdaptiveConcatPool3d": "02_inflator.ipynb",
          "get_hps": "02_inflator.ipynb",
+         "inflate": "02_inflator.ipynb",
          "show_frames": "03_video_block.ipynb",
          "DF2Paths": "03_video_block.ipynb",
          "L.insert": "03_video_block.ipynb",
@@ -21,14 +22,18 @@ index = {"TripletLoss": "01_triplet_loss.ipynb",
          "UniformizedDataLoader": "03_video_block.ipynb",
          "uniformize_dataset": "03_video_block.ipynb",
          "UniformizedShuffle": "03_video_block.ipynb",
-         "read_data": "04_distributed_inflated_NN.ipynb",
-         "get_vid_path": "04_distributed_inflated_NN.ipynb",
-         "get_lbls": "04_distributed_inflated_NN.ipynb",
-         "main": "04_distributed_inflated_NN.ipynb"}
+         "read_data": "04_charades.ipynb",
+         "get_datasets": "04_charades.ipynb",
+         "get_dls": "04_charades.ipynb",
+         "get_learner": "04_charades.ipynb",
+         "df": "04_charades.ipynb",
+         "learn": "04_charades.ipynb",
+         "main": "06_distributed_inflated_NN.ipynb"}
 
 modules = ["triplet_loss.py",
            "inflator.py",
            "video_block.py",
+           "charades.py",
            "first_inflated_NN.py"]
 
 doc_url = "https://ThesisSlayer.github.io/modules_th/"
