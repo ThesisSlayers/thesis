@@ -28,7 +28,8 @@ index = {"TripletLoss": "01_triplet_loss.ipynb",
          "get_learner": "04_charades.ipynb",
          "df": "04_charades.ipynb",
          "learn": "04_charades.ipynb",
-         "main": "06_distributed_inflated_NN.ipynb"}
+         "main": "06_distributed_inflated_NN.ipynb",
+         "create_video_tensor": "07_read_video_function.ipynb"}
 
 modules = ["triplet_loss.py",
            "inflator.py",
