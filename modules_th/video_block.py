@@ -2,7 +2,7 @@
 
 __all__ = ['show_frames', 'DF2Paths', 'Video', 'snippets_from_video', 'stretch', 'ResizeTime', 'encodes', 'TensorVideo',
            'encodes', 'encodes', 'UniformizedDataLoader', 'uniformize_dataset', 'UniformizedShuffle',
-           'create_video_tensor']
+           'createVideoTensor', 'RandomCropVid', 'RandomHFlipVid']
 
 # Cell
 import torch
@@ -223,34 +223,45 @@ class UniformizedShuffle():
         return uniformize_dataset(items, lbls=self.lbls, vocab=self.vocab, n_el=self.n_el, n_lbl=self.n_lbl)
 
 # Cell
-import torch
-import torch.nn as nn
-from fastai.vision.all import *
-from fastai.data.all import *
-from fastai.distributed import *
-import pandas as pd
-from pathlib import Path
-import time
-from video_block import *
-from inflator import *
-from triplet_loss import *
-
-# Cell
 import cv2
 import random
 
 # Cell
-def create_video_tensor(vid_path, l=50, skip=3):
-    vid = cv2.VideoCapture(str(vid_path))
-    duration = vid.get(cv2.CAP_PROP_FRAME_COUNT)
+#export
+class createVideoTensor(Transform):
+    def __init__(self, l=50, skip=3):
+        self.l = l
+        self.skip = skip
+    def encodes(self, vid_path):
+        l, skip = self.l, self.skip
+        vid = cv2.VideoCapture(str(vid_path))
+        duration = vid.get(cv2.CAP_PROP_FRAME_COUNT)
+        vid_tens, block = L(), l*skip
+        start, i = random.randint(0, max(0,duration - block)), 0
+        while len(vid_tens) < l:
+            check = start + i*skip
+            vid.set(cv2.CAP_PROP_POS_FRAMES, check)
+            res, frame = vid.read()
+            if res:
+                vid_tens.append(frame)
+            else:
+                # If video is shorter than the block
+                reap =  l // len(vid_tens)
+                delta = l % len(vid_tens)
+                vid_tens = vid_tens * reap + vid_tens[0:delta]
+                break
+            i += 1
+        vid.release()
+        return TensorVideo(vid_tens.stack().permute(3,0,1,2))
 
-    vid_tens, block = L(), l*skip
-    start, i = random.randint(0,duration - block), 0
-    while len(vid_tens) < l:
-        vid.set(cv2.CAP_PROP_POS_FRAMES, start + i*skip)
-        res, frame = vid.read()
-        if res: vid_tens.append(frame)
-        i += 1
+class RandomCropVid(Transform):
+    def __init__(self, size: tuple ):
+        self.size = size
+    def encodes(self, ts_vd):
+        return T.RandomCrop(self.size)(ts_vd)
 
-    vid.release()
-    return vid_tens.stack()
+class RandomHFlipVid(Transform):
+    def __init__(self, p ):
+        self.p = p
+    def encodes(self, ts_vd):
+        return T.RandomHorizontalFlip(self.p)(ts_vd)

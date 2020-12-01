@@ -27,14 +27,25 @@ index = {"TripletLoss": "01_triplet_loss.ipynb",
          "get_dls": "04_charades.ipynb",
          "get_learner": "04_charades.ipynb",
          "df": "04_charades.ipynb",
-         "learn": "04_charades.ipynb",
+         "learn": "05_ucf.ipynb",
+         "n_lbl": "05_ucf.ipynb",
+         "n_el": "05_ucf.ipynb",
+         "vid_paths": "05_ucf.ipynb",
+         "lbls": "05_ucf.ipynb",
+         "tfms": "05_ucf.ipynb",
+         "splits": "05_ucf.ipynb",
+         "dsets": "05_ucf.ipynb",
+         "dls": "05_ucf.ipynb",
          "main": "06_distributed_inflated_NN.ipynb",
-         "create_video_tensor": "07_read_video_function.ipynb"}
+         "createVideoTensor": "07_read_video_function.ipynb",
+         "RandomCropVid": "07_read_video_function.ipynb",
+         "RandomHFlipVid": "07_read_video_function.ipynb"}
 
 modules = ["triplet_loss.py",
            "inflator.py",
            "video_block.py",
            "charades.py",
+           "ucf_train.py",
            "first_inflated_NN.py"]
 
 doc_url = "https://ThesisSlayer.github.io/modules_th/"
