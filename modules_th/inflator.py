@@ -78,4 +78,4 @@ def inflate(m:nn.Module):
         setattr(m, name, inflate(child))
     return m
 
-#nbdev_comment %nbdev_add2all inflate
+inflate = inflate
