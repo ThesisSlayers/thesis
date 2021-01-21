@@ -118,7 +118,7 @@ def get_learner(df,
 
 
     elif loss == 'SCL':
-        Loss = SupConLoss()
+        Loss= SupConLoss()
         head = inflate(create_head(4096, embs_size, lin_ftrs=[] ))
         model = nn.Sequential(body,head)
         metrics = [silh_score]
@@ -154,5 +154,5 @@ def get_learner(df,
 # Cell
 def save_learner(learn, name):
     prefix = '/mnt/data/eugeniomarinelli/'
-    learn.export(prefix+'UCF_experiments/trained_models_cnn/learners/learner_ucf101_'+name)
+#    learn.export(prefix+'UCF_experiments/trained_models_cnn/learners/learner_ucf101_'+name)
     torch.save(learn.model,prefix+'UCF_experiments/trained_models_cnn/models/model_ucf101_'+name+'.pth')
