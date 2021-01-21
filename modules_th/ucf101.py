@@ -154,5 +154,10 @@ def get_learner(df,
 # Cell
 def save_learner(learn, name):
     prefix = '/mnt/data/eugeniomarinelli/'
-#    learn.export(prefix+'UCF_experiments/trained_models_cnn/learners/learner_ucf101_'+name)
-    torch.save(learn.model,prefix+'UCF_experiments/trained_models_cnn/models/model_ucf101_'+name+'.pth')
+    try:
+        learn.export(prefix+'UCF_experiments/trained_models_cnn/learners/learner_ucf101_'+name)
+    except: print("learner export didn't work")
+    try:
+        torch.save(learn.model,prefix+'UCF_experiments/trained_models_cnn/models/model_ucf101_'+name+'.pth')
+    except: torch.save(learn.model.state_dict(),prefix+'UCF_experiments/trained_models_cnn/models/state_dict_ucf101_'+name)
+
