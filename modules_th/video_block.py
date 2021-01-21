@@ -2,7 +2,7 @@
 
 __all__ = ['show_frames', 'Video', 'snippets_from_video', 'stretch', 'ResizeTime', 'TensorVideo', 'encodes', 'encodes',
            'TensorVideo', 'encodes', 'encodes', 'encodes', 'uniformize_dataset', 'UniformizedShuffle', 'repeat_video',
-           'create_video', 'createVideoForm', 'RandomCrop', 'RandomHFlip', 'RandomColorJitter']
+           'createVideoForm', 'RandomCrop', 'RandomHFlip', 'RandomColorJitter']
 
 # Cell
 import torch
@@ -38,8 +38,8 @@ class Video(L):
         return cls(map(PILImage.create, paths))
 
     def show(self, i=None):
-        if i == None: i = random.randint(0, len(self))
-        self[i].show()
+        if i == None: i = random.randint(0, len(self)-1)
+        show_image(self[i])
 
     def __mul__(self, n):
         neg = n < 0
@@ -108,8 +108,8 @@ def encodes(self, video:Video):
 # Cell
 class TensorVideo(TensorBase):
     def show(self, i=None):
-        if i == None: i = random.randint(0, len(self))
-        TensorImage(self[:,i]).show()
+        if i == None: i = random.randint(0, self.size(1)-1)
+        show_image(self[:,i])
 
 @ToTensor
 def encodes(self, vid:Video):
@@ -164,38 +164,40 @@ import torchvision.transforms as T
 
 # Cell
 def repeat_video(vid, l):
-    """
-    Repeats video "vid" until it reaches target length "l"
-    """
-    reap =  l // len(vid)
+    """Repeats video "vid" until it reaches target length "l" """
+    reap = l // len(vid)
     delta = l % len(vid)
     vid = vid * reap + vid[0:delta]
     return vid
 
-def create_video(vid_path, l=50, size, skip=3, form='tens', as_generator=False):
-    assert form in ['tens', 'img'], "form should be either 'tens' or 'img'"
-    vidcap = cv2.VideoCapture(str(vid_path))
-    duration = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
-    vid, block = L(), l*skip
-    start, i = random.randint(0, max(0,duration - block)), 0
+# def create_video(vid_path, l=50, skip=3, form='tens', as_generator=False):
+#     assert form in ['tens', 'img'], "form should be either 'tens' or 'img'"
+#     vidcap = cv2.VideoCapture(str(vid_path))
+#     duration = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
+#     vid, block = L(), l*skip
+#     start, i = random.randint(0, max(0,duration - block)), 0
 
-    size
-    if form=='tens': vid = torch.zeros(l, 3, )
+#     if l == 'all':
+#         start, i = 0, 0
+#         l = duration//skip
+#         vid = L()
+#     else:
+#         vid, block = L(), l*skip
+#         start, i = random.randint(0, max(0,duration - block)), 0
 
-    while len(vid) < l:
-        check = start + i*skip
-        vidcap.set(cv2.CAP_PROP_POS_FRAMES, check)
-        res, frame = vidcap.read()
+#     while len(vid) < l:
+#         check = start + i*skip
+#         vidcap.set(cv2.CAP_PROP_POS_FRAMES, check)
+#         res, frame = vidcap.read()
 
-        if res:
-            vid.append(frame)
-        else: vid = repeat_video(vid, l); break
+#         if res: vid.append(frame)
+#         else: vid = repeat_video(vid, l); break
 
-        i += 1
-    vidcap.release()
+#         i += 1
+#     vidcap.release()
 
-    if form == 'tens': return TensorVideo(vid.stack().permute(3,0,1,2))
-    else: return vid.map(PILImage.create)
+#     if form == 'tens': return TensorVideo(vid.stack().permute(3,0,1,2))
+#     else: return vid.map(PILImage.create)
 
 class createVideoForm(Transform):
     '''Create a TensorVideo using form=tens or a list of PIL images using form=img '''
@@ -203,42 +205,44 @@ class createVideoForm(Transform):
         self.l = l
         self.skip = skip
         self.form = form
-    def encodes(self, vid_path):
-        l, skip = self.l, self.skip
-        assert  os.path.exists(vid_path), 'The video path does not exist '
-        vidcap = cv2.VideoCapture(str(vid_path))
-        duration = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
-        if l == 'all':
-            start,i = 0,0
-            l = duration//skip
-            vid = L()
-        else:
-            vid, block = L(), l*skip
-            start, i = random.randint(0, max(0,duration - block)), 0
-        while len(vid) < l:
-            check = start + i*skip
-            vidcap.set(cv2.CAP_PROP_POS_FRAMES, check)
-            res, frame = vidcap.read()
-            if res:
-                if self.form == 'tens':
-                    vid.append(frame)
-                elif self.form == 'img':
-                    frame = PILImage.create(frame)
-                    vid.append(frame)
-                else:
-                    raise ValueError('form should be either tens or img')
-            else:
-                # If video is shorter than the block repeat frames
-                reap =  l // len(vid)
-                delta = l % len(vid)
-                vid = vid * reap + vid[0:delta]
-                break
-            i += 1
-        vidcap.release()
-        if self.form == 'tens':
-            return TensorVideo(vid.stack().permute(3,0,1,2))
-        else:
-            return Video(vid)
+
+    def encodes(self, vid_path): return create_video(vid_path, l=self.l, skip=self.skip, form=self.form)
+#     def encodes(self, vid_path):
+#         l, skip = self.l, self.skip
+#         assert  os.path.exists(vid_path), 'The video path does not exist '
+#         vidcap = cv2.VideoCapture(str(vid_path))
+#         duration = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
+#         if l == 'all':
+#             start, i = 0, 0
+#             l = duration//skip
+#             vid = L()
+#         else:
+#             vid, block = L(), l*skip
+#             start, i = random.randint(0, max(0,duration - block)), 0
+#         while len(vid) < l:
+#             check = start + i*skip
+#             vidcap.set(cv2.CAP_PROP_POS_FRAMES, check)
+#             res, frame = vidcap.read()
+#             if res:
+#                 if self.form == 'tens':
+#                     vid.append(frame)
+#                 elif self.form == 'img':
+#                     frame = PILImage.create(frame)
+#                     vid.append(frame)
+#                 else:
+#                     raise ValueError('form should be either tens or img')
+#             else:
+#                 # If video is shorter than the block repeat frames
+#                 reap =  l // len(vid)
+#                 delta = l % len(vid)
+#                 vid = vid * reap + vid[0:delta]
+#                 break
+#             i += 1
+#         vidcap.release()
+#         if self.form == 'tens':
+#             return TensorVideo(vid.stack().permute(3,0,1,2))
+#         else:
+#             return Video(vid)
 
 
 class RandomCrop(Transform):
