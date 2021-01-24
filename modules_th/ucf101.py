@@ -11,6 +11,7 @@ from fastai.distributed import *
 import pandas as pd
 from pathlib import Path
 import time
+from datetime import date
 from vidaug import augmentors as va
 
 import torchvision.transforms as T
@@ -62,7 +63,6 @@ def get_dsets(df, l=40, size=512,skip=20,n_views=2):
     # Datasets and dataloaders
     dsets = Datasets(vid_paths, pip, splits=splits)
     return dsets, splits
-    date.today()
 
 # Cell
 def get_dls(dsets,splits,df, n_el= 2, n_lbl = 2, shuffle_fn= UniformizedShuffle, normalize='kinetics'):
@@ -92,7 +92,7 @@ def setup_log(learn,name, append=True):
 # Cell
 def get_learner(df,
                 pretrained_model='r2p1d50_K',
-                loss='CEL-SCL',
+                loss_name='CEL_after_SCL',
                 l=40, size=224, n_lbl =2, n_el=2, skip=20, embs_size=256,n_views=2,
                 normalize = 'kinetics'):
 
@@ -104,33 +104,37 @@ def get_learner(df,
         model = inserted_models[pretrained_model]
     else: raise 'model not present in pretrained models'
 
+
     body = create_body(model, cut=-2)
 
 
 
-
-    if loss == 'SCL+CEL':
+    if loss_name == 'SCL+CEL':
         Loss = SumLoss(SupConLoss,p='cos', alpha=1, n_views=n_views)
-        body = create_body(model)
         head = inflate(create_head(256, len(dls.vocab), lin_ftrs=[]))
-        model = AnomalyDetectionModel(body,head)
+        model = MixedLossModel(body,head)
         metrics = [supcon_accuracy, silh_score]
 
 
-    elif loss == 'SCL':
+    elif loss_name == 'SCL':
         Loss= SupConLoss()
-        head = inflate(create_head(4096, embs_size, lin_ftrs=[] ))
+        head = inflate(create_head(4096, embs_size, lin_ftrs=[]))
         model = nn.Sequential(body,head)
         metrics = [silh_score]
 
 
-    elif loss == 'CEL':
-        Loss = CrossEntropyLossFlat()
+    elif loss_name == 'CEL':
+        Loss = CEL()
         head = inflate(create_head(4096, len(dls.vocab), lin_ftrs=[256]))
-        model = AnomalyDetectionModel(body,head)
+        model = MixedLossModel(body,head)
         metrics = [supcon_accuracy,silh_score]
 
-    else :
+    elif loss_name == 'CEL_after_SCL':
+        Loss = CrossEntropyLossFlat()
+        saved_model = torch.load('/mnt/data/eugeniomarinelli/UCF_experiments/trained_models_cnn/models/r2p1d50_ucf101_SCL_tuned_15fr.pth')
+        model = nn.Sequential(saved_model,nn.Sequential(nn.ReLU(inplace=True),LinBnDrop(256, 101, p=0.5)))
+        metrics = [accuracy]
+    else:
         raise 'Loss not implemented'
 
 
@@ -141,12 +145,15 @@ def get_learner(df,
                 loss_func=Loss,
                 metrics=metrics)
 
-    if loss == 'CEL-SCL':
+    if loss_name == 'SCL+CEL':
         learn.add_cbs([ContrastiveCallback(n_views)])#,LossesRecorderCallback()])
-    elif loss in ['SCL', 'CEL']:
+    elif loss_name == 'SCL':
         learn.add_cb(ContrastiveCallback(n_views))
+    elif loss_name in ['CEL', 'CEL_after_SC']:
+        learn.add_cb(MultiViewsCallback(n_views))
+    time = date.today().strftime("_%d-%m")
 
-    setup_log(learn, str(pretrained_model)+loss+'15fr', append=True)
+    setup_log(learn, str(pretrained_model)+loss_name+'5fr_20unf'+time, append=True)
 
     return learn
 

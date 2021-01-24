@@ -30,20 +30,21 @@ from modules_th.ucf101 import *
 # Cell
 @call_parse
 def main(gpu          : Param("GPU to run on", int)            = None,
-         n_epoch: Param("# of epochs to train", int)           = 0,
-         freeze_epochs : Param("Frozen epochs", int)           = 15,
+         n_epoch: Param("# of epochs to train", int)           = 20,
+         freeze_epochs : Param("Frozen epochs", int)           = 5,
          n_lbl  :Param("# of different labels per batch", int) = 2 ,
          n_el   :Param("# of elements per label", int)         = 2,
          l      :Param("num of frames of the ResizeTime", int) = 30,
          skip   :Param("skip frames",int)                      = 2,
          size     :Param("size for Resize", int)               = 224,
-         loss   :Param(" loss between CEL-SCL and SCL ", str)  = 'SCL',
+         loss   :Param(" loss between CEL-SCL and SCL ", str)  = 'CEL',
          embs_size:Param("embeddings size", int)               = 256,
          n_views:Param("number of views", int)                 = 2,
-         descr  :Param("description of the experiment", str)   = 'SCL  with 0 unfrozen and 15 frozen epoch',
+         descr  :Param("description of the experiment", str)   = 'CEL fine tune with 20 unfrozen and 5 frozen epoch',
          model: Param("model", str)                            = 'r2p1d50_K',
          normalize: Param('normalization',str)                 = 'kinetics'
         ):
+    
     prefix = '/mnt/data/eugeniomarinelli/'
 
     if gpu is not None:
@@ -71,7 +72,7 @@ def main(gpu          : Param("GPU to run on", int)            = None,
             print('starting parallel train \n')
             learn.fine_tune(n_epoch, freeze_epochs=freeze_epochs)
 
-    save_learner(learn, model+'15fr')
+    save_learner(learn, model+'_'+loss+'_finetuned_20_5fr')
 
     time = date.today().strftime("%d-%m-%y")
     experiment = pd.DataFrame({'date':[time],
