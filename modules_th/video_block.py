@@ -218,7 +218,10 @@ def create_video(vid_path, start=None, l=50, skip=3, form='tens'):
         vidcap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
         res, frame = vidcap.read()
         if res: vid.append(frame)
-        else: vid = repeat_video(vid, l); break
+        else:
+            if len(vid)==0:
+                raise Exception(f"video {vid_path} has no frames")
+            vid = repeat_video(vid, l); break
 
     vidcap.release()
     if form == 'tens': return TensorVideo(vid.stack().permute(3,0,1,2))
@@ -232,11 +235,14 @@ class createVideoForm(Transform):
         self.skip = skip
         self.form = form
 
-    def encodes(self, vid_path): return create_video(vid_path, l=self.l, skip=self.skip, form=self.form)
+    def encodes(self, vid_path):
+        if self.skip is None:
+            self.skip = random.randint(1,4)
+        return create_video(vid_path, l=self.l, skip=self.skip, form=self.form)
 #     def encodes(self, vid_path):
 #         l, skip = self.l, self.skip
 #         assert  os.path.exists(vid_path), 'The video path does not exist '
-#         vidcap = cv2.VideoCapture(str(vid_path))
+#         vidcap = cv/mnt/data/adrianlopez/Datasets/kinetics700/Videos/Fire.mp42.VideoCapture(str(vid_path))
 #         duration = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
 #         if l == 'all':
 #             start, i = 0, 0
@@ -259,7 +265,7 @@ class createVideoForm(Transform):
 #                     raise ValueError('form should be either tens or img')
 #             else:
 #                 # If video is shorter than the block repeat frames
-#                 reap =  l // len(vid)
+#                 re/mnt/data/adrianlopez/Datasets/kinetics700/Videos/Fire.mp4ap =  l // len(vid)
 #                 delta = l % len(vid)
 #                 vid = vid * reap + vid[0:delta]
 #                 break
@@ -282,9 +288,8 @@ class RandomHFlip(Transform):
         self.p = p
     def encodes(self, ts_vd):
         return T.RandomHorizontalFlip(self.p)(ts_vd)
-
 class RandomColorJitter(Transform):
     def __init__(self,brightness=0, contrast=0, saturation=0, hue=0):
           self.transform = T.ColorJitter(brightness= brightness, contrast=contrast, saturation=saturation, hue=hue)
     def encodes(self, ts_vid):
-        return self.transform(ts_vid.permute(1,0,2,3)).permute(1,0,2,3)
+        return self.transform(tstransformer_vid.permute(1,0,2,3)).permute(1,0,2,3)
