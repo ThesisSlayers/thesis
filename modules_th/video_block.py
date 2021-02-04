@@ -2,8 +2,8 @@
 
 __all__ = ['show_frames', 'Video', 'snippets_from_video', 'stretch', 'ResizeTime', 'TensorVideo', 'encodes', 'encodes',
            'TensorVideo', 'encodes', 'encodes', 'encodes', 'repeat_video', 'create_video', 'createVideoForm',
-           'uniformize_dataset', 'UniformizedShuffle', 'repeat_video', 'create_video', 'createVideoForm', 'RandomCrop',
-           'RandomHFlip', 'RandomColorJitter']
+           'uniformize_dataset', 'UniformizedShuffle', 'repeat_video', 'initialize_start_end', 'create_video',
+           'createVideoForm', 'RandomCrop', 'RandomHFlip', 'RandomColorJitter']
 
 # Cell
 import torch
@@ -206,22 +206,33 @@ def repeat_video(vid, l):
     vid = vid * reap + vid[0:delta]
     return vid
 
-def create_video(vid_path, start=None, l=50, skip=3, form='tens'):
+def initialize_start_end(start, end, l, duration, skip):
+    if l=='all': start, end, l = 0, duration, duration//skip
+    else:
+        if start is None and end is None:
+            start = random.randint(0, max(0, duration-l*skip))
+            end = start + l*skip
+        elif start is None: start = random.randint(0, max(0, end-l*skip))
+        elif end is None: end = start + l*skip
+    return start, end
+
+def create_video(vid_path, start=None, end=None, l=50, skip=4, form='tens'):
+    assert os.path.exists(str(vid_path)), f"Path {vid_path} doesn't exist"
     assert form in ['tens', 'img'], "form should be either 'tens' or 'img'"
     vidcap = cv2.VideoCapture(str(vid_path))
     duration = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
+    start, end = initialize_start_end(start, end, l, duration, skip)
 
-    if l=='all': start, l = 0, duration//skip
-    elif start is None: start = random.randint(0, max(0, duration-l*skip))
     vid = L()
-    for frame_pos in range(start, start+l*skip, skip):
+    for frame_pos in range(start, min(start+l*skip, end), skip):
         vidcap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
         res, frame = vidcap.read()
-        if res: vid.append(frame)
+        if res: vid.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         else:
             if len(vid)==0:
                 raise Exception(f"video {vid_path} has no frames")
-            vid = repeat_video(vid, l); break
+            break
+    vid = repeat_video(vid, l)
 
     vidcap.release()
     if form == 'tens': return TensorVideo(vid.stack().permute(3,0,1,2))
@@ -238,43 +249,9 @@ class createVideoForm(Transform):
     def encodes(self, vid_path):
         if self.skip is None:
             self.skip = random.randint(1,4)
+        if isinstance(vid_path, (pd.Series, pd.DataFrame)): pass
+
         return create_video(vid_path, l=self.l, skip=self.skip, form=self.form)
-#     def encodes(self, vid_path):
-#         l, skip = self.l, self.skip
-#         assert  os.path.exists(vid_path), 'The video path does not exist '
-#         vidcap = cv/mnt/data/adrianlopez/Datasets/kinetics700/Videos/Fire.mp42.VideoCapture(str(vid_path))
-#         duration = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
-#         if l == 'all':
-#             start, i = 0, 0
-#             l = duration//skip
-#             vid = L()
-#         else:
-#             vid, block = L(), l*skip
-#             start, i = random.randint(0, max(0,duration - block)), 0
-#         while len(vid) < l:
-#             check = start + i*skip
-#             vidcap.set(cv2.CAP_PROP_POS_FRAMES, check)
-#             res, frame = vidcap.read()
-#             if res:
-#                 if self.form == 'tens':
-#                     vid.append(frame)
-#                 elif self.form == 'img':
-#                     frame = PILImage.create(frame)
-#                     vid.append(frame)
-#                 else:
-#                     raise ValueError('form should be either tens or img')
-#             else:
-#                 # If video is shorter than the block repeat frames
-#                 re/mnt/data/adrianlopez/Datasets/kinetics700/Videos/Fire.mp4ap =  l // len(vid)
-#                 delta = l % len(vid)
-#                 vid = vid * reap + vid[0:delta]
-#                 break
-#             i += 1
-#         vidcap.release()
-#         if self.form == 'tens':
-#             return TensorVideo(vid.stack().permute(3,0,1,2))
-#         else:
-#             return Video(vid)
 
 
 class RandomCrop(Transform):
@@ -292,4 +269,4 @@ class RandomColorJitter(Transform):
     def __init__(self,brightness=0, contrast=0, saturation=0, hue=0):
           self.transform = T.ColorJitter(brightness= brightness, contrast=contrast, saturation=saturation, hue=hue)
     def encodes(self, ts_vid):
-        return self.transform(tstransformer_vid.permute(1,0,2,3)).permute(1,0,2,3)
+        return self.transform(ts_vid.permute(1,0,2,3)).permute(1,0,2,3)

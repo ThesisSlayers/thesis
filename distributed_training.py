@@ -25,29 +25,29 @@ from modules_th.cus_cbs import *
 
 
 
-from modules_th.ucfcrimes_unsup import *
+from modules_th.kinetics import *
 
 # Cell
 @call_parse
 def main(gpu          : Param("GPU to run on", int)            = None,
-         n_epoch: Param("# of epochs to train", int)           = 90,
+         n_epoch: Param("# of epochs to train", int)           = 0,
          freeze_epochs : Param("Frozen epochs", int)           = 10,
          n_lbl  :Param("# of different labels per batch", int) = 2 ,
-         n_el   :Param("# of elements per label", int)         = 2,
-         l      :Param("num of frames of the ResizeTime", int) = 16,
+         n_el   :Param("# of elements per label", int)         = 4,
+         l      :Param("num of frames of the ResizeTime", int) = 32,
          skip   :Param("skip frames",int)                      = None,
          size     :Param("size for Resize", int)               = 224,
-#         loss   :Param(" loss between CEL-SCL and SCL ", str)  = 'CEL', #######################
-         embs_size:Param("embeddings size", int)               = 128,
-         n_views:Param("number of views", int)                 = 4,
-         descr  :Param("description of the experiment", str)   = 'unsupervised on UCF Crimes Normal video ',
+         loss   :Param(" loss between CEL-SCL and SCL ", str)  = 'CEL', #######################
+         embs_size:Param("embeddings size", int)               = 512,
+         n_views:Param("number of views", int)                 = 1,
+         descr  :Param("description of the experiment", str)   = 'CEL model on kinetics with embs size 512',
          model: Param("model", str)                            = 'r2p1d50_K',
          normalize: Param('normalization',str)                 = 'kinetics'
         ):
     
     prefix = '/mnt/data/eugeniomarinelli/'
     
-    bs = n_lbl * n_el ##################
+     ##################
     
     if gpu is not None:
         gpu = setup_distrib(gpu)
@@ -59,8 +59,8 @@ def main(gpu          : Param("GPU to run on", int)            = None,
 
     learn = get_learner(df,
                 model,  
-#                loss, 
-                l, size, bs, skip, embs_size,n_views, 
+                loss, 
+                l, size, n_el, n_lbl, skip, embs_size,n_views, 
                 normalize)
     print('Learner Loaded \n')
     
@@ -79,7 +79,7 @@ def main(gpu          : Param("GPU to run on", int)            = None,
             print('starting parallel train \n')
             learn.fine_tune(n_epoch, freeze_epochs=freeze_epochs)
 
-    save_learner(learn, model+'_'+'unsup'+'_100ep')
+    save_learner(learn, model+'_'+loss+'_10ep_512embs')
 
     time = date.today().strftime("%d-%m-%y")
     experiment = pd.DataFrame({'date':[time],
@@ -87,7 +87,7 @@ def main(gpu          : Param("GPU to run on", int)            = None,
              'l':[l],
              'skip':[skip],
              'size':[size],
-#             'loss':[loss],
+             'loss':[loss],
              'n_el':[n_el],
              'n_lbl':[n_lbl],
              'n_epochs':[n_epoch],

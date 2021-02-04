@@ -13,9 +13,9 @@ from pathlib import Path
 import time
 from datetime import date
 from vidaug import augmentors as va
+import cv2
 
 import torchvision.transforms as T
-
 
 from .video_block import *
 from .inflator import *
@@ -40,20 +40,20 @@ def wrapVideo(x):
     return Video(x)
 
 # Cell
-def get_dsets(df, l=40, size=512,skip=20,n_views=2):
+def get_dsets(df, l=2, size=512,skip=2,n_views=1):
 
-    vid_pip = [ ColReader('vid_files'),
-                createVideoForm(l=l,skip=skip, form='img'),
+    vid_pip = [ColReader('vid_files'),
+               createVideoForm(l=l,skip=skip, form='img'),
                Resize(size, method=ResizeMethod.Pad),
-               sometimes(va.HorizontalFlip()),
-               va.GaussianBlur(1.),
-#               sometimes(va.InvertColor()),
-               va.RandomRotate(10),
+#                sometimes(va.HorizontalFlip()),
+#                va.GaussianBlur(1.),
+               va.InvertColor(),
+#                va.RandomRotate(10),
                wrapVideo]
 
     lbl_pip = [ColReader('label'), Categorize()]
     pip = [*([vid_pip]*n_views), lbl_pip]
-    #splits
+    # Splits
     splits = ColSplitter('val')(df)
 
     # Datasets and dataloaders
@@ -61,7 +61,7 @@ def get_dsets(df, l=40, size=512,skip=20,n_views=2):
     return dsets, splits
 
 # Cell
-def get_dls(dsets,splits,df, n_el= 2, n_lbl = 2, shuffle_fn= UniformizedShuffle, normalize='kinetics'):
+def get_dls(dsets,splits,df, n_el= 2, n_lbl = 2, shuffle_fn=UniformizedShuffle, normalize='kinetics'):
 
     mean, std = get_mean_std(1,normalize)
     dls  = dsets.dataloaders(bs=n_el*n_lbl,

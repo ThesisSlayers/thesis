@@ -52,7 +52,7 @@ def get_dsets(df, l=40, size=512,skip=20,n_views=2):
                sometimes(va.HorizontalFlip()),
 #               va.GaussianBlur(1.),
 #               sometimes(va.InvertColor()),
-#               va.RandomRotate(10),
+               va.RandomRotate(10),
                wrapVideo]
 
     lbl_pip = [parent_label, Categorize()]
